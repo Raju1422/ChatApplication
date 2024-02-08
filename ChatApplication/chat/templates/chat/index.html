@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+</head>
+
+<body>
+    <textarea id="chat-log" cols="200" rows="20"></textarea>
+    <br>
+    <input type="text" id="chat-message-input" size="100"><br>
+    <input type="button" id="chat-message-button" value="Send">
+    <script>
+        let ws = new WebSocket("ws://127.0.0.1:8000/ws/ac/")
+        ws.onopen = function () {
+            console.log("Websocket Connection open ")
+        }
+        ws.onmessage = function (event) {
+            const textareaDom = document.getElementById("chat-log")
+            console.log("Message receive from server to all client ....", event)
+            const data = JSON.parse(event.data)  // string to object
+            textareaDom.value += data['message'] + "\n"
+        }
+        ws.onclose = function (event) {
+            console.log("Websocket disconnected")
+        }
+        document.getElementById("chat-message-button").onclick = function (event) {
+            const inputMessage = document.getElementById("chat-message-input")
+            const message = inputMessage.value
+            ws.send(JSON.stringify({
+                'message': message
+            }
+            ))
+            inputMessage.value = " "
+        }
+    </script>
+</body>
+
+</html>
